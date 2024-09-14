@@ -1,22 +1,20 @@
 #!/usr/bin/env python3
-'''function that concatenates two matrices
-along the same axis'''
+"""
+    concatenates two matrices along a specific axis.
+"""
 
 
 def cat_matrices2D(mat1, mat2, axis=0):
-    '''contanate matrices on a given axis'''
+    """
+    mat1: list of lists of ints/floats
+    mat2: list of lists of ints/floats
+    axis: axis to concatenate
+    """
     if axis == 0:
-        result = []
-        for row in mat1:
-            result.append(row)
-        for row in mat2:
-            result.append(row)
-        return result
+        if len(mat1[0]) == len(mat2[0]):
+            return mat1 + mat2
     elif axis == 1:
-        result = []
-        for row1, row3 in zip(mat1, mat2):
-            new_row = row1+row3
-            result.append(new_row)
-        return result
+        if len(mat1) == len(mat2):
+            return [mat1[i] + mat2[i] for i in range(len(mat1))]
     else:
         return None
