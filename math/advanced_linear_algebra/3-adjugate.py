@@ -1,102 +1,51 @@
 #!/usr/bin/env python3
-'''A function that calculates the minor of a matrix'''
+"""
+A function that calculates the adjugate
+"""
 
 
 def adjugate(matrix):
-    '''extract the minor of matrix'''
-    if type(matrix) != list:
-        raise TypeError('matrix must be a list of lists')
+    """
+    returns a matrix
+    """
+    if not isinstance(matrix, list) or not all(
+            isinstance(row, list) for row in matrix):
+        raise TypeError("matrix must be a list of lists")
+
+    if not matrix or len(matrix) != len(matrix[0]):
+        raise ValueError("matrix must be a non-empty square matrix")
+
     n = len(matrix)
-    if n == 0:
-        raise TypeError('matrix must be a list of lists')
-    for row in matrix:
-        if type(row) != list:
-            raise TypeError('matrix must be a list of lists')
-        if len(row) != n:
-            raise ValueError('matrix must be a non-empty square matrix')
-        if len(matrix[0]) == 0:
-            raise ValueError('matrix must be a non-empty square matrix')
+
+    def submatrix(mat, i, j):
+        return [row[:j] + row[j+1:] for row in (mat[:i] + mat[i+1:])]
+
+    def determinant(mat):
+        if len(mat) == 1:
+            return mat[0][0]
+        if len(mat) == 2:
+            return mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]
+        det = 0
+        for j in range(len(mat)):
+            det += ((-1) ** j) * mat[0][j] * determinant(submatrix(mat, 0, j))
+        return det
+
     if n == 1:
         return [[1]]
-    # if n == 2:
-    #     minor = []
-    #     row_a = [matrix[1][1], matrix[1][0]]
-    #     minor.append(row_a)
-    #     row_b = [matrix[0][1], matrix[0][0]]
-    #     minor.append(row_b)
-    #     return minor
-    #  modify else to handle 2*2 as well
-    else:
-        minor = []
-        for row_i in range(n):
-            minor_row = []
-            for j in range(n):
-                # determine sign based on position
-                sign = (-1) ** (row_i + j)
-                submatrix = []
-                for row in range(n):
-                    if row == row_i:
-                        continue
-                    new_row = []
-                    for column in range(n):
-                        if column == j:
-                            continue
-                        new_row.append(matrix[row][column])
-                    submatrix.append(new_row)
-                minor_row.append(sign * determinant(submatrix))
-            minor.append(minor_row)
-            transposed = list(map(list, zip(*minor)))
-        return transposed
 
-
-def determinant(matrix):
-    '''calculates the determinant of a matris
-    args: matrix
-    return: determinant'''
-    if type(matrix) != list:
-        raise TypeError('matrix must be a list of lists')
-    n = len(matrix)
-    if n == 0:
-        raise TypeError('matrix must be a list of lists')
-    for row in matrix:
-        if type(row) is not list:
-            raise TypeError('matrix must be a list of lists')
-        if len(row) == 0 and n == 1:
-            return 1
-        if len(row) != n:
-            raise ValueError('matrix must be a square matrix')
-    if n == 1:
-        return matrix[0][0]
-    if n == 2:
-        a = matrix[0][0]
-        b = matrix[0][1]
-        c = matrix[1][0]
-        d = matrix[1][1]
-        return (a*d) - (b*c)
-    elif n == 3:
-        a = matrix[0][0] * ((matrix[1][1] * (matrix[2][2])) -
-                            ((matrix[1][2]) * (matrix[2][1])))
-        b = matrix[0][1] * ((matrix[1][0] * (matrix[2][2])) -
-                            ((matrix[1][2]) * (matrix[2][0])))
-        c = matrix[0][2] * ((matrix[1][0] * (matrix[2][1])) -
-                            ((matrix[1][1]) * (matrix[2][0])))
-        determinant_value = a - b + c
-        return determinant_value
-    else:
-        multiplier = 1
-        d = 0
+    cofactor_matrix = []
+    for i in range(n):
+        cofactor_row = []
         for j in range(n):
-            element = matrix[0][j]
-            submatrix = []
-            for row in range(n):
-                if row == 0:
-                    continue
-                new_row = []
-                for column in range(n):
-                    if column == j:
-                        continue
-                    new_row.append(matrix[row][column])
-                submatrix.append(new_row)
-            d += (element * multiplier * determinant(submatrix))
-            multiplier *= -1
-        return d
+            sign = (-1) ** (i + j)
+            minor = determinant(submatrix(matrix, i, j))
+            cofactor_row.append(sign * minor)
+        cofactor_matrix.append(cofactor_row)
+
+    # Transpose the cofactor matrix to get the adjugate matrix
+    adjugate_matrix = [
+        [cofactor_matrix[j][i] for j in range(n)]
+        for i in range(n)
+    ]
+
+    return adjugate_matrix
