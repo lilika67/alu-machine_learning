@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
 """
 Defines a function that calculates the intersection of obtaining this data
 with the various hypothetical probabilities of developing severe side effects
 """
+=======
+'''
+    a function def intersection(x, n, P, Pr):
+    that calculates the intersection of obtaining
+    the data with the probability of developing
+    severe side effects given the data
+'''
+>>>>>>> b9adc369b496a4e3a905299ada2b603fdcf613cb
 
 
 import numpy as np
@@ -10,6 +19,7 @@ import numpy as np
 
 def intersection(x, n, P, Pr):
     """
+<<<<<<< HEAD
     Calculates the intersection of obtaining this data with the
     various hypothetical probabilities of developing severe side effects
 
@@ -35,6 +45,43 @@ def intersection(x, n, P, Pr):
         raise TypeError("P must be a 1D numpy.ndarray")
     if type(Pr) is not np.ndarray or Pr.shape != P.shape:
         raise TypeError("Pr must be a numpy.ndarray with the same shape as P")
+=======
+    Args:
+        x is the number of patients that develop severe side effects
+        n is the total number of patients observed
+        P is a 1D numpy.ndarray of length equal to the
+        number of patients that develop severe side effects
+        Pr is a 1D numpy.ndarray of length equal to the
+        number of patients that develop severe side effects
+
+    Returns:
+        the probability of obtaining the data
+    """
+    # Check if n is a positive integer
+    if not isinstance(n, int) or n <= 0:
+        raise ValueError("n must be a positive integer")
+
+    # Check if x is an integer and greater than or equal to 0
+    if not isinstance(x, int) or x < 0:
+        raise ValueError(
+            "x must be an integer that is greater than or equal to 0"
+        )
+
+    # check if x is greater than n
+    if x > n:
+        raise ValueError("x cannot be greater than n")
+
+    # Check if p is a 1D numpy.ndarray
+    if not isinstance(P, np.ndarray) or len(P.shape) != 1:
+        raise TypeError("P must be a 1D numpy.ndarray")
+
+    #  check if Pr is not a numpy.ndarray with the same shape as P
+    if not isinstance(Pr, np.ndarray) or Pr.shape != P.shape:
+        raise TypeError(
+            "Pr must be a numpy.ndarray with the same shape as P"
+        )
+
+>>>>>>> b9adc369b496a4e3a905299ada2b603fdcf613cb
     for value in range(P.shape[0]):
         if P[value] > 1 or P[value] < 0:
             raise ValueError("All values in P must be in the range [0, 1]")
@@ -48,4 +95,8 @@ def intersection(x, n, P, Pr):
     likelihood = fact_coefficient * (P ** x) * ((1 - P) ** (n - x))
     # intersection is the likelihood times priors
     intersection = likelihood * Pr
+<<<<<<< HEAD
+=======
+
+>>>>>>> b9adc369b496a4e3a905299ada2b603fdcf613cb
     return intersection
