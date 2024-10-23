@@ -1,5 +1,7 @@
- a function that performs valid convolution
-on a grayscale image
+#!/usr/bin/env python3
+"""
+    A function def convolve_grayscale_valid
+    convolve_grayscale_valid(images, kernel)
 """
 
 
@@ -8,33 +10,27 @@ import numpy as np
 
 def convolve_grayscale_valid(images, kernel):
     """
-    Performs a valid convolution on grayscale images
-
-    parameters:
-        images [numpy.ndarray with shape (m, h, w)]:
-            contains multiple grayscale images
-            m: number of images
-            h: height in pixels of all images
-            w: width in pixels of all images
-        kernel [numpy.ndarray with shape (kh, kw)]:
-            contains the kernel for the convolution
-            kh: height of the kernel
-            kw: width of the kernel
-
-    function may only use two for loops maximum and no other loops are allowed
-
-    returns:
-        numpy.ndarray contained convolved images
+    images is a numpy.ndarray with shape (i, y, x)
+    containing multiple grayscale images
+    m is the number of images
+    y is the height in pixels of the images
+    x is the width in pixels of the images
+    kernel is a numpy.ndarray with shape (m, n)
+    containing the kernel for the convolution
+    kh is the height of the kernel
+    kw is the width of the kernel
+    Returns: a numpy.ndarray containing
+    the convolved images
     """
-    m = images.shape[0]
-    height = images.shape[1]
-    width = images.shape[2]
-    kh = kernel.shape[0]
-    kw = kernel.shape[1]
-    convoluted = np.zeros((m, height - kh + 1, width - kw + 1))
-    for h in range(height - kh + 1):
-        for w in range(width - kw + 1):
-            output = np.sum(images[:, h: h + kh, w: w + kw] * kernel,
-                            axis=1).sum(axis=1)
-            convoluted[:, h, w] = output
-    return convoluted
+    m, n = kernel.shape
+    if m == n:
+        i, y, x = images.shape
+        y = y - m + 1
+        x = x - m + 1
+        convolved_image = np.zeros((i, y, x))
+        for i in range(y):
+            for j in range(x):
+                shadow_area = images[:, i:i + m, j:j + n]
+                convolved_image[:, i, j] = \
+                    np.sum(shadow_area * kernel, axis=(1, 2))
+    return convolved_image
