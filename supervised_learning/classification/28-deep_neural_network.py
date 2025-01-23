@@ -234,4 +234,4 @@ class DeepNeuralNetwork:
             with open(filename, 'rb') as f:
                 return pickle.load(f)
         except FileNotFoundError:
-            return None        
+            return None
