@@ -46,3 +46,4 @@ if __name__ == '__main__':
     api_url = sys.argv[1]
     result = get_user_location(api_url)
     print(result)
+    

@@ -65,3 +65,4 @@ if __name__ == '__main__':
     rocket_launches = get_rocket_launches()
     for rocket_name, launch_count in rocket_launches:
         print("{}: {}".format(rocket_name, launch_count))
+        
