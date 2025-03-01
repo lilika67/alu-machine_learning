@@ -27,6 +27,4 @@ if __name__ == '__main__':
     launchpad_local = launchpad.json()["locality"]
     string = "{} ({}) {} - {} ({})".format(launch_name, date, rocket_name,
                                            launchpad_name, launchpad_local)
-
     print(string)
-    
