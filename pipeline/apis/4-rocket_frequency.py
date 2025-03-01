@@ -13,6 +13,7 @@ import requests
 def fetch_launches():
     """
     Fetch all SpaceX launches from the API.
+    
     Returns:
         list: A list of launch data (JSON objects).
     """
@@ -20,13 +21,15 @@ def fetch_launches():
     response = requests.get(url)
 
     if response.status_code != 200:
-        raise Exception("Error: Unable to fetch launch data")
+        print("Error: Unable to fetch launch data")
+        return []  # Return an empty list to prevent crashes
 
     return response.json()
 
 def fetch_rockets():
     """
     Fetch all SpaceX rockets from the API.
+    
     Returns:
         dict: A dictionary mapping rocket IDs to their names.
     """
@@ -34,7 +37,8 @@ def fetch_rockets():
     response = requests.get(url)
 
     if response.status_code != 200:
-        raise Exception("Error: Unable to fetch rocket data")
+        print("Error: Unable to fetch rocket data")
+        return {}  # Return an empty dictionary to prevent crashes
 
     rockets_data = response.json()
     return {rocket["id"]: rocket["name"] for rocket in rockets_data}
@@ -66,23 +70,29 @@ def display_launch_counts(rocket_launch_count, rocket_names):
         rocket_launch_count (dict): Rocket ID -> Number of launches
         rocket_names (dict): Rocket ID -> Rocket Name
     """
-    sorted_rockets = sorted(
-        rocket_launch_count.items(),
-        key=lambda item: (-item[1], rocket_names.get(item[0], ""))
-    )
+    # Ensure we only use known rocket names
+    valid_counts = {rocket_names.get(rid, "Unknown Rocket"): count for rid, count in rocket_launch_count.items() if rid in rocket_names}
 
-    for rocket_id, count in sorted_rockets:
-        print("{}: {}".format(rocket_names.get(rocket_id, "Unknown Rocket"), count))
+    # Sort by launch count (descending), then by name (ascending)
+    sorted_rockets = sorted(valid_counts.items(), key=lambda item: (-item[1], item[0]))
+
+    # Print results
+    for name, count in sorted_rockets:
+        print("{}: {}".format(name, count))
 
 if __name__ == '__main__':
     """
     Main execution block.
     Fetches launches, counts them per rocket, and displays the sorted results.
     """
-    try:
-        launches = fetch_launches()
-        rocket_names = fetch_rockets()
+    launches = fetch_launches()
+    rocket_names = fetch_rockets()
+
+    # Debug: Check if API data was fetched properly
+    if not launches:
+        print("Error: No launch data retrieved.")
+    elif not rocket_names:
+        print("Error: No rocket data retrieved.")
+    else:
         rocket_launch_count = count_launches(launches)
         display_launch_counts(rocket_launch_count, rocket_names)
-    except Exception as e:
-        print(e)
