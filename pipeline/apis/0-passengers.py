@@ -1,41 +1,41 @@
 #!/usr/bin/env python3
 """
-This module contains a function to fetch ships from the Swapi API
-that can hold a given number of passengers.
+Defines methods to ping the Star Wars API and return the list of ships
+that can hold a given number of passengers
 """
+
+
 import requests
 
 
 def availableShips(passengerCount):
     """
-    Returns a list of ships that can hold a given number of passengers.
+    Uses the Star Wars API to return the list of ships that can hold
+        passengerCount number of passengers
 
-    Args:
-        passengerCount (int): The number of passengers to accommodate.
+    parameters:
+        passengerCount [int]:
+            the number of passenger the ship must be able to carry
 
-    Returns:
-        list: A list of ship names that can hold the given number of
-        passengers.
+    returns:
+        [list]: all ships that can hold that many passengers
     """
-    base_url = "https://swapi.dev/api/starships/"
+    if type(passengerCount) is not int:
+        raise TypeError(
+            "passengerCount must be a positive number of passengers")
+    if passengerCount < 0:
+        raise ValueError(
+            "passengerCount must be a positive number of passengers")
+    url = "https://swapi-api.hbtn.io/api/starships/?format=json"
     ships = []
-    page = 1
-
-    while True:
-        response = requests.get("{}?page={}".format(base_url, page))
-        data = response.json()
-
-        for ship in data['results']:
-            if ship['passengers'] != 'n/a' and ship['passengers'] != 'unknown':
-                try:
-                    if int(ship['passengers'].replace(',', '')
-                           ) >= passengerCount:
-                        ships.append(ship['name'])
-                except ValueError:
-                    continue
-
-        if data['next'] is None:
-            break
-        page += 1
-
-    return ships
+    while url:
+        results = requests.get(url).json()
+        ships += results.get('results')
+        url = results.get('next')
+    shipsList = []
+    for ship in ships:
+        passengers = ship.get('passengers').replace(",", "")
+        if passengers != "n/a" and passengers != "unknown":
+            if int(passengers) >= passengerCount:
+                shipsList.append(ship.get('name'))
+    return shipsList
