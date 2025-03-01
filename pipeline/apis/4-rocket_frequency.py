@@ -1,23 +1,41 @@
 #!/usr/bin/env python3
-"""Pipeline Api"""
+"""Displays the number of launches per rocket using the SpaceX API"""
 import requests
 
-
 if __name__ == '__main__':
-    """pipeline api"""
     url = "https://api.spacexdata.com/v4/launches"
-    r = requests.get(url)
-    rocket_dict = {"5e9d0d95eda69955f709d1eb": 0}
+    response = requests.get(url)
 
-    for launch in r.json():
-        if launch["rocket"] in rocket_dict:
-            rocket_dict[launch["rocket"]] += 1
-        else:
-            rocket_dict[launch["rocket"]] = 1
-    for key, value in sorted(rocket_dict.items(),
-                             key=lambda kv: kv[1], reverse=True):
-        rurl = "https://api.spacexdata.com/v4/rockets/" + key
-        req = requests.get(rurl)
+    if response.status_code != 200:
+        print("Error: Unable to fetch launch data")
+        exit(1)
 
-        print(req.json()["name"] + ": " + str(value))
-        
+    launches = response.json()
+    rocket_launch_count = {}
+
+    # Count launches per rocket ID
+    for launch in launches:
+        rocket_id = launch.get("rocket")
+        if rocket_id:
+            rocket_launch_count[rocket_id] = rocket_launch_count.get(rocket_id, 0) + 1
+
+    # Fetch rocket names
+    url_rockets = "https://api.spacexdata.com/v4/rockets"
+    rockets_response = requests.get(url_rockets)
+
+    if rockets_response.status_code != 200:
+        print("Error: Unable to fetch rocket data")
+        exit(1)
+
+    rockets_data = rockets_response.json()
+    rocket_names = {rocket["id"]: rocket["name"] for rocket in rockets_data}
+
+    # Prepare sorted list
+    sorted_rockets = sorted(
+        rocket_launch_count.items(),
+        key=lambda item: (-item[1], rocket_names.get(item[0], ""))  # Sort by launches desc, then name asc
+    )
+
+    # Print results
+    for rocket_id, count in sorted_rockets:
+        print(f"{rocket_names.get(rocket_id, 'Unknown Rocket')}: {count}")
