@@ -23,6 +23,8 @@ class NST:
         alpha: weight for content cost
         beta: weight for style cost
         model: the Keras model used to calculate cost
+        gram_style_features: list of gram matrices from style layer outputs
+        content_feature: the content later output of the content image
 
     class constructor:
         def __init__(self, style_image, content_image, alpha=1e4, beta=1)
@@ -37,6 +39,8 @@ class NST:
     public instance methods:
         def load_model(self):
             creates model used to calculate cost from VGG19 Keras base model
+        def generate_features(self):
+            extracts the features used to calculate neural style cost
     """
     style_layers = ['block1_conv1', 'block2_conv1', 'block3_conv1',
                     'block4_conv1', 'block5_conv1']
@@ -86,6 +90,7 @@ class NST:
         self.alpha = alpha
         self.beta = beta
         self.load_model()
+        self.generate_features()
 
     @staticmethod
     def scale_image(image):
@@ -184,3 +189,26 @@ class NST:
         gram = tf.expand_dims(gram, axis=0)
         gram /= tf.cast(product, tf.float32)
         return (gram)
+
+    def generate_features(self):
+        """
+        Extracts the features used to calculate neural style cost
+
+        Sets public instance attribute:
+            gram_style_features and content_feature
+        """
+        VGG19_model = tf.keras.applications.vgg19
+        preprocess_style = VGG19_model.preprocess_input(
+            self.style_image * 255)
+        preprocess_content = VGG19_model.preprocess_input(
+            self.content_image * 255)
+
+        style_features = self.model(preprocess_style)[:-1]
+        content_feature = self.model(preprocess_content)[-1]
+
+        gram_style_features = []
+        for feature in style_features:
+            gram_style_features.append(self.gram_matrix(feature))
+
+        self.gram_style_features = gram_style_features
+        self.content_feature = content_feature
